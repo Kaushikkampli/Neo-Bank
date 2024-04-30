@@ -130,7 +130,6 @@ func TestDeadlockTransferTx(t *testing.T) {
 
 	for i := 0; i < n; i++ {
 		go func() {
-
 			fromAccount := account1
 			toAccount := account2
 
