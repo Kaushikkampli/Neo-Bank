@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/kaushikkampli/neobank/api"
@@ -15,7 +14,6 @@ func main() {
 	var err error
 	config, err := utils.LoadConfig(".")
 
-	fmt.Println("here")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
