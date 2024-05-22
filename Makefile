@@ -13,6 +13,12 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:postgres@localhost:3308/neo_bank?sslmode=disable" -verbose down
 
+migrateup1:
+	migrate -path db/migration -database "postgresql://root:postgres@localhost:3308/neo_bank?sslmode=disable" -verbose up 1
+
+migratedown1:
+	migrate -path db/migration -database "postgresql://root:postgres@localhost:3308/neo_bank?sslmode=disable" -verbose down 1
+
 sqlc:
 	sqlc generate
 
@@ -25,4 +31,4 @@ server:
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/kaushikkampli/neobank/db/sqlc Store
 
-.PHONY: postgres12 createdb dropdb migrateup migratedown sqlc server mock
+.PHONY: postgres12 createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc server mock
