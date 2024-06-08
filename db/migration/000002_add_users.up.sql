@@ -4,7 +4,7 @@ CREATE TABLE "users" (
   "hashed_passwd" varchar NOT NULL,
   "email_id" varchar NOT NULL,
   "passwd_updated_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "created_at" timestamptz NOT NULL
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 ALTER TABLE "accounts" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");

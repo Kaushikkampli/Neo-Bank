@@ -11,17 +11,16 @@ import (
 )
 
 func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
+
 	CreateAccountDetails := CreateAccountParams{
-		Owner:    utils.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  utils.RandomMoney(),
 		Currency: utils.RandomCurrency(),
 	}
 
 	account, err := testQueries.CreateAccount(context.Background(), CreateAccountDetails)
-
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	require.NotEmpty(t, account)
 	require.Equal(t, CreateAccountDetails.Owner, account.Owner)
