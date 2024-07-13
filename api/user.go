@@ -56,12 +56,60 @@ func (server *Server) createUser(ctx *gin.Context) {
 		}
 	}
 
-	resp := CreateUserResponse{
+	resp := DBtoUserResp(User)
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func DBtoUserResp(User db.User) CreateUserResponse {
+	return CreateUserResponse{
 		Username:        User.Username,
 		FullName:        User.FullName,
 		EmailID:         User.EmailID,
 		CreatedAt:       User.CreatedAt,
 		PasswdUpdatedAt: User.PasswdUpdatedAt,
+	}
+}
+
+type LoginUserRequest struct {
+	UserName string `json:"username" binding:"required,alphanum"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type LoginUserResponse struct {
+	Token string             `json:"token"`
+	User  CreateUserResponse `json:"user"`
+}
+
+func (server *Server) loginUser(ctx *gin.Context) {
+	var req LoginUserRequest
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := server.store.GetUser(ctx, req.UserName)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+
+	err = utils.ComparePassword(req.Password, user.HashedPasswd)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	token, err := server.token.CreateToken(req.UserName, server.config.TokenExpirationTime)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	resp := LoginUserResponse{
+		Token: token,
+		User:  DBtoUserResp(user),
 	}
 
 	ctx.JSON(http.StatusOK, resp)

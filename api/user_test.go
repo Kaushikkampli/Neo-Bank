@@ -86,7 +86,9 @@ func TestCreateUser(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 
 			tc.buildStubs(store)
-			server := NewServer(store)
+			server, err := NewTestServer(t, store)
+			require.NoError(t, err)
+
 			recorder := httptest.NewRecorder()
 
 			url := "/users"
