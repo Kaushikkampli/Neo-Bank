@@ -22,6 +22,11 @@ func main() {
 		log.Fatal("cannot connect to db:", err)
 	}
 
+	// Ping the database to verify connectivity
+	if err := conn.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+
 	store := db.NewStore(conn)
 	server, err := api.NewServer(config, store)
 	if err != nil {
