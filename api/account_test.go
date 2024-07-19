@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	mockdb "github.com/kaushikkampli/neobank/db/mock"
@@ -17,8 +18,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	account = randomAccount()
+)
+
 func TestGetAccount(t *testing.T) {
-	account := randomAccount()
 
 	testCases := []struct {
 		name          string
@@ -96,6 +100,8 @@ func TestGetAccount(t *testing.T) {
 
 		url := fmt.Sprintf("/accounts/%d", tc.accountID)
 		request, err := http.NewRequest(http.MethodGet, url, nil)
+
+		SetAuthHeaderForTest(t, account.Owner, time.Minute, AuthorizationType, server.token, request)
 
 		require.NoError(t, err)
 		server.router.ServeHTTP(recorder, request)
