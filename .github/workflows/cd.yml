@@ -1,0 +1,37 @@
+name: Deploy Docker Image to EC2
+
+on:
+  workflow_dispatch: # Manually triggered or use a different trigger as needed
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Deploy Docker image on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i "${{ secrets.EC2_PRIVATE_KEY }}" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # Login to ECR
+            aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${{ secrets.REGISTRY }}
+
+            # Pull the Docker image
+            docker pull ${{ secrets.REGISTRY }}/neo-bank:${{ github.sha }}
+
+            # Stop and remove any existing container
+            docker stop neo-bank || true
+            docker rm neo-bank || true
+
+            # Run the new container
+            docker run -d --name neo-bank --env-file app.env -p 8080:8080 ${{ secrets.REGISTRY }}/neo-bank:${{ github.sha }}
+          EOF
