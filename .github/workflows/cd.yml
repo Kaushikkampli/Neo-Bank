@@ -37,5 +37,9 @@ jobs:
             docker rm neo-bank || true
 
             # Run the new container
-            docker run -d --name neo-bank --env-file app.env -p 8080:8080 ${{ secrets.REGISTRY }}/neo-bank:${{ github.sha }}
+            docker run -d --name neo-bank -p 8080:8080 ${{ secrets.REGISTRY }}/neo-bank:${{ github.sha }}
+          
+            # Remove old images
+            docker image prune -f
+            docker rmi $(docker images -q --filter "dangling=true") || true
           EOF

@@ -4,8 +4,7 @@
 name: Push Image To ECR
 
 on:
-  push:
-    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
 
@@ -28,7 +27,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Load secret from AWS secret manager & creat app.env file
+      - name: Load secret from AWS secret manager & create app.env file
         run: aws secretsmanager get-secret-value --secret-id neo-bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")[]' > app.env
 
       - name: Build, tag, and push docker image to Amazon ECR
